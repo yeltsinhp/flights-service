@@ -12,6 +12,9 @@ export class Seat {
   @Column()
   status: string;
 
+  @Column()
+  flightId: number;
+
   @ManyToOne(() => Flight, flight => flight.seats)
   flight: Flight;
 }

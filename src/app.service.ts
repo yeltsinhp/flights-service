@@ -16,13 +16,21 @@ export class AppService {
     private readonly reservationRepository: Repository<Reservation>,
   ) {}
 
-  async createReservation(clientId: number, flightId: number, seatNumber: number) {
-    const flight = await this.flightRepository.findOne({ where: { id: flightId } });
+  async createReservation(
+    clientId: number,
+    flightId: number,
+    seatNumber: number,
+  ) {
+    const flight = await this.flightRepository.findOne({
+      where: { id: flightId },
+    });
     if (!flight) {
       throw new Error('Flight not found');
     }
 
-    const seat = await this.seatRepository.findOne({ where: { flight: { id: flightId }, seatNumber } });
+    const seat = await this.seatRepository.findOne({
+      where: { flight: { id: flightId }, seatNumber },
+    });
     // console.log(seat)
     if (!seat || seat.status !== 'available') {
       throw new Error('Seat not available');
@@ -45,12 +53,19 @@ export class AppService {
     flight.availableSeats -= 1;
     await this.flightRepository.save(flight);
 
-    const reservation = this.reservationRepository.create({ clientId, flight, seatNumber, status: 'reserved' });
+    const reservation = this.reservationRepository.create({
+      clientId,
+      flight,
+      seatNumber,
+      status: 'reserved',
+    });
     return await this.reservationRepository.save(reservation);
   }
 
   async cancelReservation(flightId: number, seatNumber: number) {
-    const reservation = await this.reservationRepository.findOne({ where: { flight: { id: flightId }, seatNumber, status: 'reserved' } });
+    const reservation = await this.reservationRepository.findOne({
+      where: { flight: { id: flightId }, seatNumber, status: 'reserved' },
+    });
     if (!reservation) {
       throw new Error('Reservation not found');
     }
@@ -58,11 +73,15 @@ export class AppService {
     reservation.status = 'cancelled';
     await this.reservationRepository.save(reservation);
 
-    const seat = await this.seatRepository.findOne({ where: { flight: { id: flightId }, seatNumber } });
+    const seat = await this.seatRepository.findOne({
+      where: { flight: { id: flightId }, seatNumber },
+    });
     seat.status = 'available';
     await this.seatRepository.save(seat);
 
-    const flight = await this.flightRepository.findOne({ where: { id: flightId } });
+    const flight = await this.flightRepository.findOne({
+      where: { id: flightId },
+    });
     flight.availableSeats += 1;
     await this.flightRepository.save(flight);
 
@@ -71,5 +90,9 @@ export class AppService {
 
   async getAllFlights() {
     return await this.flightRepository.find();
+  }
+
+  async getAllSeats(flightId: number) {
+    return await this.seatRepository.find({ where: { flightId } });
   }
 }

@@ -1,5 +1,5 @@
 import { Controller, Body, Get, Param } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { CancelReservationDto } from './dto/cancel-reservation.dto';
@@ -28,5 +28,10 @@ export class AppController {
   @MessagePattern({ cmd: 'getAllFlights' })
   async getAllFlights() {
     return await this.flightsService.getAllFlights();
+  }
+
+  @MessagePattern({ cmd: 'getAllSeats' })
+  async getAllSeats(@Payload() flightId: number) {
+    return await this.flightsService.getAllSeats(flightId);
   }
 }
